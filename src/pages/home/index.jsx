@@ -5,6 +5,7 @@ import { Play, PlayIcon } from "lucide-react";
 import { IoPlay } from "react-icons/io5";
 import GenreGallery from "../../components/trendingGenres";
 import MoviesPage from "../../components/trendingMovies";
+import SeriesPage from "../../components/trendingSeries";
 
 function Home() {
   return (
@@ -47,6 +48,7 @@ function Home() {
       <GenreGallery />
 
       <MoviesPage />
+      <SeriesPage />
 
       {/* Additional Content Section */}
       <div className="p-4 md:p-8 text-white">
