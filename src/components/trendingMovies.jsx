@@ -291,7 +291,7 @@ const MoviesPage = () => {
   }
 
   return (
-    <div className="bg-black border-[#999999] border-solid border-[1px] min-h-screen">
+    <div className="bg-black rounded-md border-[#999999] border-solid border-[1px] min-h-screen">
       {/* Header */}
       <div className=" mt-[-30px] p-4">
         <div className="max-w-7xl mx-auto">

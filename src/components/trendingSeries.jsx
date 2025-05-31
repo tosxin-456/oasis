@@ -307,12 +307,12 @@ const SeriesPage = () => {
   }
 
   return (
-    <div className="bg-black border-[#999999] border-solid border-[1px] min-h-screen">
+    <div className="bg-black mt-[100px] border-[#999999] border-solid rounded-md border-[1px] min-h-screen">
       {/* Header */}
       <div className="mt-[-30px] p-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-white w-fit rounded-md py-1.5 px-3 bg-[#21A9A9] text-xl md:text-2xl font-bold">
-            TV Series
+            Shows
           </h1>
         </div>
       </div>
