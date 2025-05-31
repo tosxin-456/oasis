@@ -6,6 +6,7 @@ import { IoPlay } from "react-icons/io5";
 import GenreGallery from "../../components/trendingGenres";
 import MoviesPage from "../../components/trendingMovies";
 import SeriesPage from "../../components/trendingSeries";
+import Publication from "../../components/publication";
 
 function Home() {
   return (
@@ -49,7 +50,7 @@ function Home() {
 
       <MoviesPage />
       <SeriesPage />
-
+      <Publication />
       {/* Additional Content Section */}
       <div className="p-4 md:p-8 text-white">
         <div className="max-w-6xl mx-auto">
