@@ -18,10 +18,12 @@ const MoviesPage = () => {
   const [genresWithImages, setGenresWithImages] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
+  const [mustWatch, setMustWatch] = useState([]);
   const [showAllGenres, setShowAllGenres] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [trendingIndex, setTrendingIndex] = useState(0);
   const [newReleasesIndex, setNewReleasesIndex] = useState(0);
+  const [mustWatchIndex, setMustWatchIndex] = useState(0);
 
   const fetchMultiplePages = async (urlTemplate, totalPages = 3) => {
     const allResults = [];
@@ -56,6 +58,7 @@ const MoviesPage = () => {
         );
         setTrendingMovies(allTrending.slice(0, 60)); // Adjust number as needed
         console.log(allTrending);
+
         // New Releases (3 pages)
         const currentDate = new Date();
         const threeMonthsAgo = new Date(
@@ -69,6 +72,13 @@ const MoviesPage = () => {
           3
         );
         setNewReleases(allNewReleases.slice(0, 60)); // Adjust number as needed
+
+        // Must Watch Movies (high rating + popular)
+        const mustWatchRes = await fetch(
+          `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=1000&page=1`
+        );
+        const mustWatchData = await mustWatchRes.json();
+        setMustWatch(mustWatchData.results.slice(0, 20)); // Top 20 must-watch movies
 
         // Genre Posters
         const genreRes = await fetch(
@@ -124,24 +134,28 @@ const MoviesPage = () => {
 
   const scrollCarousel = (direction, type) => {
     const itemsPerView = isMobile ? 2 : 5;
-    const maxIndex =
-      type === "trending"
-        ? Math.max(0, trendingMovies.length - itemsPerView)
-        : Math.max(0, newReleases.length - itemsPerView);
+    let maxIndex, currentIndex, setIndex;
 
     if (type === "trending") {
-      const newIndex =
-        direction === "left"
-          ? Math.max(0, trendingIndex - itemsPerView)
-          : Math.min(maxIndex, trendingIndex + itemsPerView);
-      setTrendingIndex(newIndex);
+      maxIndex = Math.max(0, trendingMovies.length - itemsPerView);
+      currentIndex = trendingIndex;
+      setIndex = setTrendingIndex;
+    } else if (type === "mustwatch") {
+      maxIndex = Math.max(0, mustWatch.length - itemsPerView);
+      currentIndex = mustWatchIndex;
+      setIndex = setMustWatchIndex;
     } else {
-      const newIndex =
-        direction === "left"
-          ? Math.max(0, newReleasesIndex - itemsPerView)
-          : Math.min(maxIndex, newReleasesIndex + itemsPerView);
-      setNewReleasesIndex(newIndex);
+      maxIndex = Math.max(0, newReleases.length - itemsPerView);
+      currentIndex = newReleasesIndex;
+      setIndex = setNewReleasesIndex;
     }
+
+    const newIndex =
+      direction === "left"
+        ? Math.max(0, currentIndex - itemsPerView)
+        : Math.min(maxIndex, currentIndex + itemsPerView);
+
+    setIndex(newIndex);
   };
 
   const MovieCarousel = ({ title, movies, currentIndex, type }) => {
@@ -224,18 +238,6 @@ const MoviesPage = () => {
                     No Image Available
                   </div>
                 )}
-
-                {/* <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#21A9A9] rounded-full p-3">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div> */}
               </div>
 
               <div className="p-4">
@@ -243,7 +245,7 @@ const MoviesPage = () => {
                   {movie.title}
                 </h3>
 
-                {/* Different info for trending vs new releases */}
+                {/* Different info for trending vs new releases vs must watch */}
                 {type === "trending" ? (
                   // Show rating and views for trending movies
                   <div className="flex justify-between text-sm text-gray-400">
@@ -254,6 +256,18 @@ const MoviesPage = () => {
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400" />
                       <span>{movie.vote_average.toFixed(1)}/10</span>
+                    </div>
+                  </div>
+                ) : type === "mustwatch" ? (
+                  // Show rating for must-watch movies
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span>{movie.vote_average.toFixed(1)}/10</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{(movie.vote_count / 1000).toFixed(1)}k</span>
                     </div>
                   </div>
                 ) : (
@@ -278,7 +292,8 @@ const MoviesPage = () => {
   if (
     genresWithImages.length === 0 &&
     trendingMovies.length === 0 &&
-    newReleases.length === 0
+    newReleases.length === 0 &&
+    mustWatch.length === 0
   ) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
@@ -319,6 +334,16 @@ const MoviesPage = () => {
             movies={newReleases}
             currentIndex={newReleasesIndex}
             type="new"
+          />
+        )}
+
+        {/* Must Watch Movies */}
+        {mustWatch.length > 0 && (
+          <MovieCarousel
+            title="Must - Watch Movies"
+            movies={mustWatch}
+            currentIndex={mustWatchIndex}
+            type="mustwatch"
           />
         )}
       </div>
