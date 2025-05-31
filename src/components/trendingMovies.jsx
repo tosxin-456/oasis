@@ -70,7 +70,7 @@ const GenreGallery = () => {
   }
 
   return (
-    <div className="p-8 bg-black w-[95%] md:w-[90%] m-auto min-h-screen">
+    <div className="p-8 bg-black w-[97%] md:w-[90%] m-auto min-h-screen">
       <h3 className="m-2 text-lg text-white ">
         {" "}
         Explore our wide variety of categories
