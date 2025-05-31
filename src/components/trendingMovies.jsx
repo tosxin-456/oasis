@@ -159,10 +159,10 @@ const MoviesPage = () => {
 
     return (
       <div className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
+        <div className="md:flex items-center md:justify-between mb-6">
+          <h2 className="text-2xl text-center  md:text-3xl font-bold text-white">{title}</h2>
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center gap-4 mt-4 bg-black border border-[#333333] p-3">
+            <div className="flex m-auto items-center justify-center gap-4 mt-4 bg-black border border-[#333333] p-3">
               <button
                 onClick={() => scrollCarousel("left", type)}
                 disabled={!canScrollLeft}
