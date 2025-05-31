@@ -248,7 +248,7 @@ const MoviesPage = () => {
                 {/* Different info for trending vs new releases */}
                 {type === "trending" ? (
                   // Show rating and views for trending movies
-                  <div className="flex gap-4 text-sm text-gray-400">
+                  <div className="flex justify-between text-sm text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
                       <span>{(movie.vote_count / 1000).toFixed(1)}k</span>
