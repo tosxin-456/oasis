@@ -160,7 +160,9 @@ const MoviesPage = () => {
     return (
       <div className="mb-12">
         <div className="md:flex items-center md:justify-between mb-6">
-          <h2 className="text-2xl text-center  md:text-3xl font-bold text-white">{title}</h2>
+          <h2 className="text-2xl text-center  md:text-3xl font-bold text-white">
+            {title}
+          </h2>
           <div className="flex items-center gap-2">
             <div className="flex m-auto items-center justify-center gap-4 mt-4 bg-black border border-[#333333] p-3">
               <button
@@ -249,7 +251,7 @@ const MoviesPage = () => {
                   <div className="flex gap-4 text-sm text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      <span>{movie.vote_count.toLocaleString()} views</span>
+                      <span>{(movie.vote_count / 1000).toFixed(1)}k</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400" />
