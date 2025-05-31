@@ -225,7 +225,7 @@ const MoviesPage = () => {
                   </div>
                 )}
 
-                <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                {/* <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#21A9A9] rounded-full p-3">
                     <svg
                       className="w-6 h-6 text-white"
@@ -235,7 +235,7 @@ const MoviesPage = () => {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <div className="p-4">
