@@ -10,9 +10,11 @@ import {
   Menu
 } from "lucide-react";
 
+import logo from "../assets/Oasis logo.svg";
+import { HiMenuAlt3 } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
+
 // You'll need to replace this with your actual logo import
-const logo =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTAwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8dGV4dCB4PSI1MCIgeT0iMjUiIGZpbGw9IiMyMUE5QTkiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9BU0lTPC90ZXh0Pgo8L3N2Zz4K";
 
 const API_KEY = "49e8f09b8364cf1348ed4f97e81039bb";
 const IMAGE_BASE = "https://image.tmdb.org/t/p/w200";
@@ -47,11 +49,18 @@ function Navbar() {
     }
   };
 
+  const navigate = useNavigate();
+
   const handleLinkClick = (link) => {
     setActiveLink(link);
     setIsMobileMenuOpen(false);
-    // Replace with your navigation logic
-    console.log(`Navigate to: ${link === "home" ? "/" : "/movies"}`);
+    console.log(link);
+
+    if (link === "home") {
+      navigate("/");
+    } else {
+      navigate(link);
+    }
   };
 
   // Search API function
@@ -182,7 +191,7 @@ function Navbar() {
                 className="text-white w-6 h-6 cursor-pointer hover:text-[#21A9A9] transition-colors"
                 onClick={toggleSearch}
               />
-              <Menu
+              <HiMenuAlt3
                 onClick={toggleMenu}
                 className="md:hidden border-[#1F1F1F] border cursor-pointer text-white w-6 h-6 hover:text-[#21A9A9] transition-colors"
               />
