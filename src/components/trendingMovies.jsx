@@ -90,13 +90,13 @@ const GenreGallery = () => {
               key={genre.id}
               className="bg-[#1A1A1A] rounded-xl overflow-hidden p-3 hover:bg-gray-700 transition-colors border-solid border-[1px] border-[#262626] relative"
             >
-              <div className="grid grid-cols-2 grid-rows-2">
+              <div className="grid grid-cols-2 grid-rows-2 gap-[5px] ">
                 {genre.posters.map((url, i) => (
                   <img
                     key={i}
                     src={url}
                     alt={`Poster ${i}`}
-                    className="w-full h-20 object-cover"
+                    className="w-full h-20 rounded-md object-cover"
                   />
                 ))}
               </div>
@@ -146,13 +146,13 @@ const GenreGallery = () => {
               key={genre.id}
               className="bg-[#1A1A1A] rounded-xl overflow- p-4 hover:bg-gray-700 transition-colors border-solid border-[1px] border-[#262626] relative"
             >
-              <div className="grid grid-cols-2 grid-rows-2">
+              <div className="grid grid-cols-2 grid-rows-2 gap-[4px] ">
                 {genre.posters.map((url, i) => (
                   <img
                     key={i}
                     src={url}
                     alt={`Poster ${i}`}
-                    className="w-full h-24 object-cover"
+                    className="w-full h-24 rounded-md object-cover"
                   />
                 ))}
               </div>
