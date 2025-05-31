@@ -157,33 +157,33 @@ const MoviesPage = () => {
 
     return (
       <div className="mb-12">
-        <div className="md:flex items-center md:justify-between mb-6">
-          <h2 className="text-2xl text-center  md:text-3xl font-bold text-white">
+        <div className="mb-6">
+          <h2 className="text-2xl text-center md:text-left md:text-3xl font-bold text-white mb-4 md:mb-0">
             {title}
           </h2>
-          <div className="flex items-center gap-2">
-            <div className="flex m-auto items-center justify-center gap-4 mt-4 bg-black border border-[#333333] p-3">
+          <div className="flex justify-center md:justify-end">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 bg-black border border-[#333333] p-2 sm:p-3 rounded">
               <button
                 onClick={() => scrollCarousel("left", type)}
                 disabled={!canScrollLeft}
-                className={`text-white p-2 bg-[#1F1F1F] transition-all duration-300 ${
+                className={`p-1.5 sm:p-2 bg-[#1F1F1F] transition-all duration-300 rounded ${
                   canScrollLeft
-                    ? "border-gray-300 hover:border-[#333333] text-gray-700 hover:bg-[#999999]"
-                    : " text-white cursor-not-allowed"
+                    ? "border border-gray-300 hover:border-[#333333] text-gray-300 hover:text-white hover:bg-[#333333]"
+                    : "text-gray-500 cursor-not-allowed"
                 }`}
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
 
               {/* Progress indicators */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 px-1 sm:px-2">
                 {Array.from({ length: totalSlides }, (_, index) => (
                   <div
                     key={index}
                     className={`h-1 rounded-full transition-all duration-300 ${
                       index === currentSlide
-                        ? "w-3 bg-teal-500"
-                        : "w-3 bg-gray-300"
+                        ? "w-4 sm:w-6 bg-teal-500"
+                        : "w-1 bg-gray-400"
                     }`}
                   />
                 ))}
@@ -192,13 +192,13 @@ const MoviesPage = () => {
               <button
                 onClick={() => scrollCarousel("right", type)}
                 disabled={!canScrollRight}
-                className={`text-white p-2 bg-[#1F1F1F] transition-all duration-300 ${
+                className={`p-1.5 sm:p-2 bg-[#1F1F1F] transition-all duration-300 rounded ${
                   canScrollRight
-                    ? " hover:border-[#333333] text-gray-700 hover:bg-[#999999]"
-                    : "border-gray-200 text-gray-300 cursor-not-allowed"
+                    ? "border border-gray-300 hover:border-[#333333] text-gray-300 hover:text-white hover:bg-[#333333]"
+                    : "text-gray-500 cursor-not-allowed"
                 }`}
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
