@@ -3,7 +3,8 @@ import desktop_background from "../../assets/backgrounds/desktop.png";
 import logo from "../../assets/backgrounds/logo.svg";
 import { Play, PlayIcon } from "lucide-react";
 import { IoPlay } from "react-icons/io5";
-import GenreGallery from "../../components/trendingMovies";
+import GenreGallery from "../../components/trendingGenres";
+import MoviesPage from "../../components/trendingMovies";
 
 function Home() {
   return (
@@ -43,7 +44,9 @@ function Home() {
           </div>
         </div>
       </div>
-      <GenreGallery/>
+      <GenreGallery />
+
+      <MoviesPage />
 
       {/* Additional Content Section */}
       <div className="p-4 md:p-8 text-white">
