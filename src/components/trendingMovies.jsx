@@ -23,6 +23,18 @@ const MoviesPage = () => {
   const [trendingIndex, setTrendingIndex] = useState(0);
   const [newReleasesIndex, setNewReleasesIndex] = useState(0);
 
+  const fetchMultiplePages = async (urlTemplate, totalPages = 3) => {
+    const allResults = [];
+
+    for (let page = 1; page <= totalPages; page++) {
+      const res = await fetch(urlTemplate(page));
+      const data = await res.json();
+      allResults.push(...data.results);
+    }
+
+    return allResults;
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -36,43 +48,29 @@ const MoviesPage = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // Fetch trending movies - get more pages for more movies
-        const trendingRes1 = await fetch(
-          `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}&page=1`
+        // Trending Movies (3 pages)
+        const allTrending = await fetchMultiplePages(
+          (page) =>
+            `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}&page=${page}`,
+          3
         );
-        const trendingRes2 = await fetch(
-          `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}&page=2`
-        );
-        const trendingData1 = await trendingRes1.json();
-        const trendingData2 = await trendingRes2.json();
-        const allTrending = [
-          ...trendingData1.results,
-          ...trendingData2.results
-        ];
-        setTrendingMovies(allTrending.slice(0, 30)); // Get 30 trending movies
-
-        // Fetch new releases (recent movies) - get more pages
+        setTrendingMovies(allTrending.slice(0, 60)); // Adjust number as needed
+        console.log(allTrending);
+        // New Releases (3 pages)
         const currentDate = new Date();
         const threeMonthsAgo = new Date(
           currentDate.setMonth(currentDate.getMonth() - 3)
         );
         const dateString = threeMonthsAgo.toISOString().split("T")[0];
 
-        const newReleasesRes1 = await fetch(
-          `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${dateString}&sort_by=release_date.desc&page=1`
+        const allNewReleases = await fetchMultiplePages(
+          (page) =>
+            `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${dateString}&sort_by=release_date.desc&page=${page}`,
+          3
         );
-        const newReleasesRes2 = await fetch(
-          `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${dateString}&sort_by=release_date.desc&page=2`
-        );
-        const newReleasesData1 = await newReleasesRes1.json();
-        const newReleasesData2 = await newReleasesRes2.json();
-        const allNewReleases = [
-          ...newReleasesData1.results,
-          ...newReleasesData2.results
-        ];
-        setNewReleases(allNewReleases.slice(0, 30)); // Get 30 new releases
+        setNewReleases(allNewReleases.slice(0, 60)); // Adjust number as needed
 
-        // Fetch genres and movies for genre gallery
+        // Genre Posters
         const genreRes = await fetch(
           `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=en-US`
         );
@@ -134,14 +132,14 @@ const MoviesPage = () => {
     if (type === "trending") {
       const newIndex =
         direction === "left"
-          ? Math.max(0, trendingIndex - 1)
-          : Math.min(maxIndex, trendingIndex + 1);
+          ? Math.max(0, trendingIndex - itemsPerView)
+          : Math.min(maxIndex, trendingIndex + itemsPerView);
       setTrendingIndex(newIndex);
     } else {
       const newIndex =
         direction === "left"
-          ? Math.max(0, newReleasesIndex - 1)
-          : Math.min(maxIndex, newReleasesIndex + 1);
+          ? Math.max(0, newReleasesIndex - itemsPerView)
+          : Math.min(maxIndex, newReleasesIndex + itemsPerView);
       setNewReleasesIndex(newIndex);
     }
   };
@@ -184,8 +182,8 @@ const MoviesPage = () => {
                     key={index}
                     className={`h-1 rounded-full transition-all duration-300 ${
                       index === currentSlide
-                        ? "w-6 bg-teal-500"
-                        : "w-1 bg-gray-300"
+                        ? "w-3 bg-teal-500"
+                        : "w-3 bg-gray-300"
                     }`}
                   />
                 ))}
