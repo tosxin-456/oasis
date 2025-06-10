@@ -576,7 +576,8 @@ const LiveSoccerDashboard = () => {
                                         alt={match.homeName}
                                         className="w-4 h-4 object-contain"
                                         onError={(e) => {
-                                          e.target.style.display = "none";
+                                          e.target.onerror = null;
+                                          e.target.src = match.homeLogoUrl; // fallback to original
                                         }}
                                       />
                                     ) : (
@@ -618,8 +619,9 @@ const LiveSoccerDashboard = () => {
                                         alt={match.awayName}
                                         className="w-4 h-4 object-contain"
                                         onError={(e) => {
-                                          e.target.style.display = "none";
-                                        }}
+                                            e.target.onerror = null;
+                                            e.target.src = match.awayLogoUrl; // fallback to original
+                                          }}
                                       />
                                     ) : (
                                       <div className="text-gray-400 text-xs font-bold">
