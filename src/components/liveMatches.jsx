@@ -198,6 +198,29 @@ const LiveSoccerDashboard = () => {
     }
   };
 
+  const CardIndicator = ({ yellow, red }) => {
+    if (yellow === 0 && red === 0) return null;
+
+    return (
+      <div className="flex gap-1 items-center">
+        {yellow > 0 && (
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-2 bg-yellow-400 rounded-sm"></div>
+            <span className="text-xs text-yellow-400 font-medium">
+              {yellow}
+            </span>
+          </div>
+        )}
+        {red > 0 && (
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-2 bg-red-500 rounded-sm"></div>
+            <span className="text-xs text-red-500 font-medium">{red}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const getLeagueHeaderStyle = (status) => {
     switch (status) {
       case "live":
@@ -264,27 +287,6 @@ const LiveSoccerDashboard = () => {
           blink ? "opacity-100" : "opacity-30"
         }`}
       />
-    );
-  };
-
-  const CardIndicator = ({ yellow, red }) => {
-    if (yellow === 0 && red === 0) return null;
-
-    return (
-      <div className="flex gap-1 items-center text-xs">
-        {yellow > 0 && (
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-yellow-400 rounded-sm"></div>
-            <span className="text-yellow-400 font-medium">{yellow}</span>
-          </div>
-        )}
-        {red > 0 && (
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-red-500 rounded-sm"></div>
-            <span className="text-red-500 font-medium">{red}</span>
-          </div>
-        )}
-      </div>
     );
   };
 
@@ -459,7 +461,7 @@ const LiveSoccerDashboard = () => {
             <div className="flex-1">
               <h1 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                 ⚽ <span className="hidden sm:inline">Football Dashboard</span>
-                <span className="sm:hidden">Dashboard</span>
+                <span className="sm:hidden">Football Dashboard</span>
               </h1>
               <p className="text-gray-400 text-xs flex items-center gap-2 mt-1">
                 <Clock className="w-3 h-3" />
@@ -591,6 +593,14 @@ const LiveSoccerDashboard = () => {
                                   <span className="text-white text-xs font-semibold truncate">
                                     {match.homeName}
                                   </span>
+                                  {isLive && (
+                                    <div className="lg:justify-end flex">
+                                      <CardIndicator
+                                        yellow={match.homeYellow || 0}
+                                        red={match.homeRed || 0}
+                                      />
+                                    </div>
+                                  )}
                                 </div>
 
                                 <div className="col-span-1 text-center">
@@ -612,6 +622,14 @@ const LiveSoccerDashboard = () => {
                                 </div>
 
                                 <div className="col-span-2 flex items-center gap-2 min-w-0 flex-row-reverse">
+                                  {isLive && (
+                                    <div className="lg:justify-end flex">
+                                      <CardIndicator
+                                        yellow={match.awayYellow || 0}
+                                        red={match.awayRed || 0}
+                                      />
+                                    </div>
+                                  )}
                                   <div className="w-5 h-5 bg-[#333333] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                                     {awayLogoUrl ? (
                                       <img
@@ -619,9 +637,9 @@ const LiveSoccerDashboard = () => {
                                         alt={match.awayName}
                                         className="w-4 h-4 object-contain"
                                         onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = match.awayLogoUrl; // fallback to original
-                                          }}
+                                          e.target.onerror = null;
+                                          e.target.src = match.awayLogoUrl; // fallback to original
+                                        }}
                                       />
                                     ) : (
                                       <div className="text-gray-400 text-xs font-bold">
