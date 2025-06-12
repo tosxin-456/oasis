@@ -12,7 +12,10 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  Eye
+  Eye,
+  Trophy,
+  Target,
+  Activity
 } from "lucide-react";
 
 const LiveSoccerDashboard = () => {
@@ -24,6 +27,9 @@ const LiveSoccerDashboard = () => {
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [matchesError, setMatchesError] = useState(null);
 
+  // Navigation state
+  const [activeTab, setActiveTab] = useState("all");
+
   // News state
   const [news, setNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
@@ -32,6 +38,19 @@ const LiveSoccerDashboard = () => {
 
   // Responsive state
   const [isMobile, setIsMobile] = useState(false);
+
+  // Sport types mapping
+  const sportTypes = {
+    all: { name: "All Sports", icon: Activity, matchTypes: [] },
+    football: { name: "Football", icon: Circle, matchTypes: [1] },
+    basketball: { name: "Basketball", icon: Target, matchTypes: [2] },
+    volleyball: { name: "Volleyball", icon: Trophy, matchTypes: [99] },
+    others: {
+      name: "Others",
+      icon: Square,
+      matchTypes: [3, 4, 5, 6, 7, 8, 9, 10]
+    }
+  };
 
   // Check mobile on mount and resize
   useEffect(() => {
@@ -43,6 +62,37 @@ const LiveSoccerDashboard = () => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Filter matches by sport type
+  const getFilteredMatches = () => {
+    if (activeTab === "all") return matches;
+
+    const sportConfig = sportTypes[activeTab];
+    if (!sportConfig) return matches;
+
+    return matches.filter((match) => {
+      if (activeTab === "others") {
+        // For others, include any matchType not in the main categories
+        const mainTypes = [1, 2, 99];
+        return !mainTypes.includes(match.matchType);
+      }
+      return sportConfig.matchTypes.includes(match.matchType);
+    });
+  };
+
+  // Get sport type from matchType
+  const getSportFromMatchType = (matchType) => {
+    switch (matchType) {
+      case 1:
+        return "football";
+      case 2:
+        return "basketball";
+      case 99:
+        return "volleyball";
+      default:
+        return "others";
+    }
+  };
 
   // Fetch matches
   const fetchMatches = async () => {
@@ -62,7 +112,8 @@ const LiveSoccerDashboard = () => {
       const matchList = data.matchList || [];
       setMatches(matchList);
 
-      const grouped = groupMatchesByLeague(matchList);
+      const filteredMatches = getFilteredMatches();
+      const grouped = groupMatchesByLeague(filteredMatches);
       setGroupedMatches(grouped);
       setMatchesLastUpdate(new Date());
     } catch (err) {
@@ -72,6 +123,13 @@ const LiveSoccerDashboard = () => {
       setMatchesLoading(false);
     }
   };
+
+  // Update grouped matches when active tab changes
+  useEffect(() => {
+    const filteredMatches = getFilteredMatches();
+    const grouped = groupMatchesByLeague(filteredMatches);
+    setGroupedMatches(grouped);
+  }, [activeTab, matches]);
 
   // Fetch news
   const fetchNews = async () => {
@@ -111,7 +169,8 @@ const LiveSoccerDashboard = () => {
         grouped[groupKey] = {
           leagueName: leagueKey,
           status: isLive ? "live" : isUpcoming ? "upcoming" : "other",
-          matches: []
+          matches: [],
+          sportType: getSportFromMatchType(match.matchType)
         };
       }
 
@@ -221,14 +280,15 @@ const LiveSoccerDashboard = () => {
     );
   };
 
-  const getLeagueHeaderStyle = (status) => {
+  const getLeagueHeaderStyle = (status, sportType) => {
+    const baseStyle = "text-white";
     switch (status) {
       case "live":
-        return "bg-gradient-to-r from-red-600 to-red-700 text-white";
+        return `bg-gradient-to-r from-red-600 to-red-700 ${baseStyle}`;
       case "upcoming":
-        return "bg-gradient-to-r from-blue-600 to-blue-700 text-white";
+        return `bg-gradient-to-r from-blue-600 to-blue-700 ${baseStyle}`;
       default:
-        return "bg-gradient-to-r from-gray-600 to-gray-700 text-white";
+        return `bg-gradient-to-r from-gray-600 to-gray-700 ${baseStyle}`;
     }
   };
 
@@ -245,11 +305,36 @@ const LiveSoccerDashboard = () => {
 
   const correctLogoUrl = (logoUrl) => {
     if (!logoUrl) return null;
-    return logoUrl.replace(
-      "http://zq.win007.com",
-      "https://cfcdn.xdapiym5297.com/zqwin007"
-    );
+
+    // Replace known problematic domains with the proxy CDN
+    const problematicDomains = [
+      "zq.win007.com",
+      "zq.titan007.com",
+      "win007.com"
+    ];
+
+    for (const domain of problematicDomains) {
+      if (logoUrl.includes(domain)) {
+        return logoUrl.replace(
+          /https?:\/\/[^\/]*win007\.com|https?:\/\/[^\/]*titan007\.com/,
+          "https://cfcdn.xdapiym5297.com/zqwin007"
+        );
+      }
+    }
+
+    // Protocol-relative URL (starts with //)
+    if (logoUrl.startsWith("//")) {
+      return "https:" + logoUrl;
+    }
+
+    // Root-relative path
+    if (logoUrl.startsWith("/")) {
+      return "https://cfcdn.xdapiym5297.com" + logoUrl;
+    }
+
+    return logoUrl;
   };
+  
 
   const handlePlayClick = (matchId, teamLink) => {
     const fullURL = `https://afr.808ball2.com/football/${matchId}-${teamLink}.html`;
@@ -287,6 +372,62 @@ const LiveSoccerDashboard = () => {
           blink ? "opacity-100" : "opacity-30"
         }`}
       />
+    );
+  };
+
+  // Get match count for each sport type
+  const getMatchCountBySport = (sportKey) => {
+    if (sportKey === "all") return matches.length;
+
+    const sportConfig = sportTypes[sportKey];
+    if (!sportConfig) return 0;
+
+    return matches.filter((match) => {
+      if (sportKey === "others") {
+        const mainTypes = [1, 2, 99];
+        return !mainTypes.includes(match.matchType);
+      }
+      return sportConfig.matchTypes.includes(match.matchType);
+    }).length;
+  };
+
+  // Navigation Component
+  const SportNavigation = () => {
+    return (
+      <div className="bg-[#1A1A1A] border-b border-[#333333] px-3 py-2 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+          {Object.entries(sportTypes).map(([key, config]) => {
+            const Icon = config.icon;
+            const matchCount = getMatchCountBySport(key);
+            const isActive = activeTab === key;
+
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                  isActive
+                    ? "bg-[#21A9A9] text-white shadow-lg"
+                    : "bg-[#262626] text-gray-300 hover:bg-[#333333] hover:text-white"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{config.name}</span>
+                <span className="sm:hidden">{config.name.split(" ")[0]}</span>
+                {matchCount > 0 && (
+                  <span
+                    className={`px-1.5 py-0.5 text-xs rounded-full font-bold ${
+                      isActive ? "bg-white/20" : "bg-[#21A9A9] text-white"
+                    }`}
+                  >
+                    {matchCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     );
   };
 
@@ -460,8 +601,8 @@ const LiveSoccerDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                ⚽ <span className="hidden sm:inline">Football Dashboard</span>
-                <span className="sm:hidden">Football Dashboard</span>
+                ⚽ <span className="hidden sm:inline">Sports Dashboard</span>
+                <span className="sm:hidden">Sports Dashboard</span>
               </h1>
               <p className="text-gray-400 text-xs flex items-center gap-2 mt-1">
                 <Clock className="w-3 h-3" />
@@ -501,6 +642,9 @@ const LiveSoccerDashboard = () => {
         </div>
       </div>
 
+      {/* Sport Navigation */}
+      <SportNavigation />
+
       {/* Main Content */}
       <div className="px-3 py-4 sm:px-4 sm:py-6">
         <div
@@ -508,7 +652,14 @@ const LiveSoccerDashboard = () => {
         >
           {/* Matches Section */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white mb-4">Live Matches</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">
+                {sportTypes[activeTab].name} Matches
+              </h2>
+              <div className="text-sm text-gray-400">
+                {getFilteredMatches().length} matches
+              </div>
+            </div>
             {matchesLoading && matches.length === 0 ? (
               <div className="text-center py-12">
                 <div className="animate-spin w-8 h-8 border-4 border-[#21A9A9] border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -518,7 +669,13 @@ const LiveSoccerDashboard = () => {
               <div className="text-center py-12">
                 <div className="text-gray-500 text-4xl mb-4">📅</div>
                 <h3 className="text-white text-lg mb-2">No Matches</h3>
-                <p className="text-gray-400 text-sm">Check back later</p>
+                <p className="text-gray-400 text-sm">
+                  {activeTab === "all"
+                    ? "Check back later"
+                    : `No ${sportTypes[
+                        activeTab
+                      ].name.toLowerCase()} matches available`}
+                </p>
               </div>
             ) : (
               Object.entries(groupedMatches).map(([leagueKey, leagueData]) => (
@@ -528,7 +685,8 @@ const LiveSoccerDashboard = () => {
                 >
                   <div
                     className={`${getLeagueHeaderStyle(
-                      leagueData.status
+                      leagueData.status,
+                      leagueData.sportType
                     )} px-3 py-2 cursor-pointer hover:opacity-90 transition-opacity`}
                     onClick={() => toggleLeague(leagueKey)}
                   >
@@ -593,7 +751,7 @@ const LiveSoccerDashboard = () => {
                                   <span className="text-white text-xs font-semibold truncate">
                                     {match.homeName}
                                   </span>
-                                  {isLive && (
+                                  {isLive && match.matchType === 1 && (
                                     <div className="lg:justify-end flex">
                                       <CardIndicator
                                         yellow={match.homeYellow || 0}
@@ -622,7 +780,7 @@ const LiveSoccerDashboard = () => {
                                 </div>
 
                                 <div className="col-span-2 flex items-center gap-2 min-w-0 flex-row-reverse">
-                                  {isLive && (
+                                  {isLive && match.matchType === 1 && (
                                     <div className="lg:justify-end flex">
                                       <CardIndicator
                                         yellow={match.awayYellow || 0}
@@ -630,6 +788,9 @@ const LiveSoccerDashboard = () => {
                                       />
                                     </div>
                                   )}
+                                  <span className="text-white text-xs font-semibold truncate">
+                                    {match.awayName}
+                                  </span>
                                   <div className="w-5 h-5 bg-[#333333] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                                     {awayLogoUrl ? (
                                       <img
@@ -649,80 +810,100 @@ const LiveSoccerDashboard = () => {
                                       </div>
                                     )}
                                   </div>
-                                  <span className="text-white text-xs font-semibold truncate text-right">
-                                    {match.awayName}
-                                  </span>
                                 </div>
                               </div>
 
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  {isLive && (
-                                    <Circle className="w-2 h-2 text-red-500 fill-current" />
-                                  )}
-                                  <span
-                                    className={`text-xs font-medium ${
-                                      isLive ? "text-red-400" : "text-gray-400"
-                                    }`}
+                                  <div
+                                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                                      getMatchStatus(match.state).bgColor
+                                    } ${getMatchStatus(match.state).color}`}
                                   >
+                                    {isLive && (
+                                      <BlinkingIndicator isLive={true} />
+                                    )}
+                                    <span className="font-medium">
+                                      {getMatchStatus(match.state).text}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-gray-400">
                                     {formatMatchTime(match)}
-                                  </span>
+                                  </div>
                                 </div>
 
-                                <button
-                                  onClick={() =>
-                                    handlePlayClick(
-                                      match.matchId,
-                                      match.teamLink
-                                    )
-                                  }
-                                  className="bg-[#21A9A9] hover:bg-[#1a8a8a] text-white px-2 py-1 rounded text-xs font-semibold transition-all duration-200 hover:scale-105 flex items-center gap-1"
-                                >
-                                  <Play className="w-3 h-3 fill-current" />
-                                  Watch
-                                </button>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() =>
+                                      handlePlayClick(
+                                        match.matchId,
+                                        match.teamLink ||
+                                          `${match.homeName
+                                            ?.toLowerCase()
+                                            .replace(
+                                              /\s+/g,
+                                              "-"
+                                            )}-vs-${match.awayName
+                                            ?.toLowerCase()
+                                            .replace(/\s+/g, "-")}`
+                                      )
+                                    }
+                                    className="bg-[#21A9A9] hover:bg-[#1a8a8a] text-white p-1.5 rounded-lg transition-colors group"
+                                    title="Watch Live"
+                                  >
+                                    <Play className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
                         );
                       })}
+
+                      {leagueData.matches.length > 3 && (
+                        <div className="p-3 bg-[#262626] text-center">
+                          <button className="text-[#21A9A9] hover:text-[#1a8a8a] text-xs font-medium transition-colors">
+                            View {leagueData.matches.length - 3} more matches
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               ))
             )}
+
+            {matchesError && (
+              <div className="text-center py-8">
+                <div className="text-red-400 text-2xl mb-2">⚠️</div>
+                <p className="text-red-400 text-sm mb-4">{matchesError}</p>
+                <button
+                  onClick={fetchMatches}
+                  className="bg-[#21A9A9] hover:bg-[#1a8a8a] text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
 
           {/* News Section */}
-          <div>
+          <div className="space-y-4">
             <NewsCarousel />
+            {newsError && (
+              <div className="text-center py-8">
+                <div className="text-red-400 text-2xl mb-2">⚠️</div>
+                <p className="text-red-400 text-sm mb-4">{newsError}</p>
+                <button
+                  onClick={fetchNews}
+                  className="bg-[#21A9A9] hover:bg-[#1a8a8a] text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Footer Stats */}
-        {(matches.length > 0 || news.length > 0) && (
-          <div className="mt-6 text-center">
-            <div className="inline-flex items-center gap-3 bg-[#1A1A1A] backdrop-blur-sm px-4 py-2 rounded-full border border-[#333333] text-xs">
-              <div className="flex items-center gap-1 text-red-400">
-                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                <span>
-                  {matches.filter((m) => m.state === 1 || m.state === 3).length}{" "}
-                  Live
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-blue-400">
-                <Calendar className="w-3 h-3" />
-                <span>
-                  {matches.filter((m) => m.state === 0).length} Upcoming
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-400">
-                <BookOpen className="w-3 h-3" />
-                <span>{news.length} News</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
