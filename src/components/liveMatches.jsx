@@ -729,7 +729,9 @@ const LiveSoccerDashboard = () => {
                                   <div className="w-5 h-5 bg-[#333333] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                                     {homeLogoUrl ? (
                                       <img
-                                        src={homeLogoUrl}
+                                        src={
+                                          "https://zq.titan007.com/Image/team/images/20200322173249.jpg"
+                                        }
                                         alt={match.homeName}
                                         className="w-4 h-4 object-contain"
                                         onError={(e) => {
