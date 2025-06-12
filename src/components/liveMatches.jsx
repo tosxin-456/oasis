@@ -306,14 +306,9 @@ const LiveSoccerDashboard = () => {
   const correctLogoUrl = (logoUrl) => {
     if (!logoUrl) return null;
 
-    // Replace known problematic domains with the proxy CDN
-    const problematicDomains = [
-      "zq.win007.com",
-      "zq.titan007.com",
-      "win007.com"
-    ];
+    const domainsToReplace = ["zq.win007.com", "zq.titan007.com", "win007.com"];
 
-    for (const domain of problematicDomains) {
+    for (const domain of domainsToReplace) {
       if (logoUrl.includes(domain)) {
         return logoUrl.replace(
           /https?:\/\/[^\/]*win007\.com|https?:\/\/[^\/]*titan007\.com/,
@@ -322,18 +317,20 @@ const LiveSoccerDashboard = () => {
       }
     }
 
-    // Protocol-relative URL (starts with //)
+    // Handle protocol-relative URLs (e.g. //zq.win007.com/...)
     if (logoUrl.startsWith("//")) {
-      return "https:" + logoUrl;
+      const fixedUrl = "https:" + logoUrl;
+      return correctLogoUrl(fixedUrl); // recursively fix it
     }
 
-    // Root-relative path
+    // Handle root-relative URLs
     if (logoUrl.startsWith("/")) {
       return "https://cfcdn.xdapiym5297.com" + logoUrl;
     }
 
     return logoUrl;
   };
+  
   
 
   const handlePlayClick = (matchId, teamLink) => {
